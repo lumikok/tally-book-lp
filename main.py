@@ -1,27 +1,40 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
+from enum import Enum
+from typing import Annotated
+from datetime import date
+
 app = FastAPI(
     title="我的记账API",
     description="从零学习FastAPI的记账系统API",
     version="0.1.0",
 )
 
+class Category(str, Enum):
+    food = "餐饮"
+    transportation = "交通"
+    shopping = "购物"
+    entertainment = "娱乐"
+    medical = "医疗"
+    study = "学习"
+    others = "其他"
+    
 fake_expenses = [
-    {"id": 1, "amount": 50.0, "category": "餐饮","note": "午餐", "date": "2024-06-01"},
-    {"id": 2, "amount": 20.0, "category": "交通","note": "地铁", "date": "2024-06-02"},
-    {"id": 3, "amount": 100.0, "category": "购物","note": "购物", "date": "2024-06-03"},
-    {"id": 4, "amount": 30.0, "category": "娱乐","note": "电影", "date": "2024-06-04"},
-    {"id": 5, "amount": 80.0, "category": "医疗","note": "体检", "date": "2024-06-05"},
+    {"id": 1, "amount": 50.0, "category": Category.food,"note": "午餐", "date": "2024-06-01"},
+    {"id": 2, "amount": 20.0, "category": Category.transportation,"note": "地铁", "date": "2024-06-02"},
+    {"id": 3, "amount": 100.0, "category": Category.shopping,"note": "购物", "date": "2024-06-03"},
+    {"id": 4, "amount": 30.0, "category": Category.entertainment,"note": "电影", "date": "2024-06-04"},
+    {"id": 5, "amount": 80.0, "category": Category.medical,"note": "体检", "date": "2024-06-05"},
 ]
 
 class Expense(BaseModel):
-    amount: float
-    category: str
-    note: str | None = None
-    date: str # 暂时简化
+    amount: Annotated[float, Field(gt=0, description="支出金额必须大于0")]
+    category: Category
+    note: Annotated[str | None, Field(default=None,max_length=100,description="备注信息，最多100字符")]
+    date: Annotated[str, Field(description="消费日期，格式为YYYY-MM-DD")]
 
 @app.get("/expenses")
-def list_expenses(category: str | None = None, skip: int = 0, limit: int = 10):
+def list_expenses(category: Category | None = None, skip: int = 0, limit: int = 10):
     """
     查询参数说明：
     - category: 可选参数，按类别过滤支出
