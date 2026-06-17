@@ -70,6 +70,7 @@ def get_expense(expense_id: int):
     # return {"error": "未找到该开销记录"}  不太对：pydantic校验会失败或返回奇怪的错误信息
     raise HTTPException(status_code=404, detail="未找到该开销记录") # 手动抛出404异常，触发FastAPI的异常处理
 
+# 接口3：创建开销记录
 @app.post("/expenses", response_model=ExpenseOut)
 def create_expense(expense: ExpenseCreate):
     """
@@ -83,4 +84,38 @@ def create_expense(expense: ExpenseCreate):
     new_expense = {"id": new_id, **expense.model_dump()} # 将Pydantic模型转换为字典，并添加id字段
     fake_expenses.append(new_expense) # 模拟数据库存储
     return new_expense # 返回创建的开销记录
+
+# 接口4：修改开销记录
+@app.put("/expenses/{expense_id}", response_model=ExpenseOut)
+def update_expense(expense_id: int, expense: ExpenseCreate):
+    """
+    路径参数说明：
+    - expense_id: 开销记录的唯一标识符
+    api说明：
+    修改指定 id 的开销记录（整体更新）
+    - expense: 请求体，包含新的开销信息
+    """
+
+    for i,e in enumerate(fake_expenses):
+        if e["id"] == expense_id:
+            updated_expense = {"id": expense_id, **expense.model_dump()}
+            fake_expenses[i] = updated_expense
+            return updated_expense
+    raise HTTPException(status_code=404, detail="未找到该开销记录") 
+
+# 接口5：删除开销记录
+@app.delete("/expenses/{expense_id}")
+async def delete_expense(expense_id: int):
+    """
+    路径参数说明：
+    - expense_id: 开销记录的唯一标识符
+    api说明：
+    删除指定 id 的开销记录
+    """
+    for i,e in enumerate(fake_expenses):
+        if e["id"] == expense_id:
+            deleted_expense = fake_expenses.pop(i)
+            return {"message": f"已删除开销记录，id={expense_id}", "deleted": deleted_expense}
+    raise HTTPException(status_code=404, detail="未找到该开销记录")
+    
 
