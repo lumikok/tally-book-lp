@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-
+from pydantic import BaseModel
 app = FastAPI(
     title="我的记账API",
     description="从零学习FastAPI的记账系统API",
@@ -14,14 +14,11 @@ fake_expenses = [
     {"id": 5, "amount": 80.0, "category": "医疗","note": "体检", "date": "2024-06-05"},
 ]
 
-@app.get("/")
-def root():
-    return {"message": "欢迎来到我的记账API！"}
-
-@app.get("/users/{user_name}")
-def greet(user_name: str):
-    return {"message": f"你好，{user_name}！欢迎使用我的记账API！"}
-
+class Expense(BaseModel):
+    amount: float
+    category: str
+    note: str | None = None
+    date: str # 暂时简化
 
 @app.get("/expenses")
 def list_expenses(category: str | None = None, skip: int = 0, limit: int = 10):
@@ -51,3 +48,18 @@ def get_expense(expense_id: int):
         if expense["id"] == expense_id:
             return expense
     return {"error": "未找到该开销记录"}
+
+@app.post("/expenses")
+def create_expense(expense: Expense):
+    """
+    请求体说明：
+    - amount: 支出金额，必填
+    - category: 支出类别，必填
+    - note: 备注信息，选填
+    - date: 支出日期，必填（简化为字符串）
+    """
+    new_id = max(expense["id"] for expense in fake_expenses) + 1
+    new_expense = {"id": new_id, **expense.model_dump()} # 将Pydantic模型转换为字典，并添加id字段
+    fake_expenses.append(new_expense) # 模拟数据库存储
+    return new_expense # 返回创建的开销记录
+
