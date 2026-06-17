@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,HTTPException
 from pydantic import BaseModel,Field
 from enum import Enum
 from typing import Annotated
@@ -33,7 +33,14 @@ class Expense(BaseModel):
     note: Annotated[str | None, Field(default=None,max_length=100,description="备注信息，最多100字符")]
     date: Annotated[str, Field(description="消费日期，格式为YYYY-MM-DD")]
 
-@app.get("/expenses")
+# 入参模型和出参模型分离，方便后续扩展和维护
+class ExpenseCreate(Expense):
+    pass
+class ExpenseOut(Expense):
+    id: int
+
+# 接口1：查询开销列表，支持按分类过滤和分页（添加response_model，返回ExpenseOut列表）
+@app.get("/expenses", response_model=list[ExpenseOut])
 def list_expenses(category: Category | None = None, skip: int = 0, limit: int = 10):
     """
     查询参数说明：
@@ -50,7 +57,7 @@ def list_expenses(category: Category | None = None, skip: int = 0, limit: int = 
     return result[skip : skip + limit]
 
 # 接口2：查询单笔开销
-@app.get("/expenses/{expense_id}")
+@app.get("/expenses/{expense_id}", response_model=ExpenseOut)
 def get_expense(expense_id: int):
     """
     路径参数说明：
@@ -60,10 +67,11 @@ def get_expense(expense_id: int):
     for expense in fake_expenses:
         if expense["id"] == expense_id:
             return expense
-    return {"error": "未找到该开销记录"}
+    # return {"error": "未找到该开销记录"}  不太对：pydantic校验会失败或返回奇怪的错误信息
+    raise HTTPException(status_code=404, detail="未找到该开销记录") # 手动抛出404异常，触发FastAPI的异常处理
 
-@app.post("/expenses")
-def create_expense(expense: Expense):
+@app.post("/expenses", response_model=ExpenseOut)
+def create_expense(expense: ExpenseCreate):
     """
     请求体说明：
     - amount: 支出金额，必填
