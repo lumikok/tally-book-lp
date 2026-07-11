@@ -1,4 +1,4 @@
-from fastapi import FastAPI,HTTPException
+from fastapi import FastAPI,HTTPException,Depends,Header
 from pydantic import BaseModel,Field
 from enum import Enum
 from typing import Annotated
@@ -26,6 +26,14 @@ fake_expenses = [
     {"id": 4, "amount": 30.0, "category": Category.entertainment,"note": "电影", "date": "2024-06-04"},
     {"id": 5, "amount": 80.0, "category": Category.medical,"note": "体检", "date": "2024-06-05"},
 ]
+
+def verify_token(X_token: Annotated[str,Header(description="请求头中的X-Token，用于身份验证")]):
+    """
+    鉴权依赖：检查请求头 X-token 是否存在且值为 secret，否则抛出401异常
+    """
+    if X_token != "secret":
+        raise HTTPException(401)
+    return X_token
 
 class Expense(BaseModel):
     amount: Annotated[float, Field(gt=0, description="支出金额必须大于0")]
@@ -72,7 +80,7 @@ def get_expense(expense_id: int):
 
 # 接口3：创建开销记录
 @app.post("/expenses", response_model=ExpenseOut)
-def create_expense(expense: ExpenseCreate):
+def create_expense(expense: ExpenseCreate,token: Annotated[str,Depends(verify_token)]):
     """
     请求体说明：
     - amount: 支出金额，必填
@@ -87,7 +95,7 @@ def create_expense(expense: ExpenseCreate):
 
 # 接口4：修改开销记录
 @app.put("/expenses/{expense_id}", response_model=ExpenseOut)
-def update_expense(expense_id: int, expense: ExpenseCreate):
+def update_expense(expense_id: int, expense: ExpenseCreate,token: Annotated[str,Depends(verify_token)]):
     """
     路径参数说明：
     - expense_id: 开销记录的唯一标识符
@@ -105,7 +113,7 @@ def update_expense(expense_id: int, expense: ExpenseCreate):
 
 # 接口5：删除开销记录
 @app.delete("/expenses/{expense_id}")
-async def delete_expense(expense_id: int):
+async def delete_expense(expense_id: int,token: Annotated[str,Depends(verify_token)]):
     """
     路径参数说明：
     - expense_id: 开销记录的唯一标识符
