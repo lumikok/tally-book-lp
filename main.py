@@ -4,7 +4,8 @@ from enum import Enum
 from typing import Annotated
 from datetime import date
 from fastapi.responses import JSONResponse
-import time
+import time,asyncio,httpx
+
 
 # 自定义异常类
 # 继承 Exception 表示这是一个异常：让FastAPI识别并处理它
@@ -77,6 +78,40 @@ class ExpenseCreate(Expense):
     pass
 class ExpenseOut(Expense):
     id: int
+
+
+# 异步测试接口
+@app.get("/demo/async-vs-sync",
+         tags=["演示"],
+         summary="对比同步和异步耗时",
+         )
+async def compare_async_sync():
+    """同时请求三个接口，对比同步和异步的总耗时"""
+    urls = [
+        "https://httpbin.org/delay/2",  # 模拟延迟2秒的接口
+        "https://httpbin.org/delay/2",
+        "https://httpbin.org/delay/2"
+    ]
+
+    # 1. 同步请求，顺序执行，总耗时约6秒
+    sync_start = time.time()  # 获取当前时间戳
+    with httpx.Client() as client: # 同步客户端
+        for url in urls:
+            client.get(url)
+    sync_duration = time.time() - sync_start
+
+    # 2. 异步请求，使用 asyncio.gather 并发执行，总耗时约2秒
+    async_start = time.time()
+    async with httpx.AsyncClient() as client: # 异步客户端
+        tasks = [client.get(url) for url in urls]
+        await asyncio.gather(*tasks) # 并发执行所有任务
+    async_dutation = time.time() - async_start
+
+    return {
+        "同步请求耗时": round(sync_duration, 3),
+        "异步请求耗时": round(async_dutation, 3),
+        "提速倍": round(sync_duration / async_dutation, 2)
+    } # round 保留两位小数
 
 # 接口1：查询开销列表，支持按分类过滤和分页（添加response_model，返回ExpenseOut列表）
 @app.get(
