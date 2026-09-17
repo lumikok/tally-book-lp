@@ -1,14 +1,14 @@
-from fastapi import FastAPI,HTTPException,Depends,Header
+from fastapi import FastAPI,Depends
 from typing import Annotated
 from fastapi.responses import JSONResponse
 import time,asyncio,httpx
 import models
-from database import Base,engine,SessionLocal
+from database import Base,engine
 from sqlalchemy import select # 构造查询语句
 from sqlalchemy.orm import Session # 类型标注
 
 from schemas import ExpenseCreate,ExpenseOut,Category
-
+from dependencies import get_db,verify_token
 
 # 自定义异常类
 # 继承 Exception 表示这是一个异常：让FastAPI识别并处理它
@@ -19,15 +19,6 @@ class ExpenseNotFound(Exception):
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine) # 绑定数据库引擎，创建所有继承自 Base 的数据模型对应的表
-
-# 数据库导入
-def get_db():
-    """获取数据库会话"""
-    db = SessionLocal() # 创建一个数据库会话
-    try:
-        yield db # 生成器，返回数据库会话给调用者
-    finally:
-        db.close() # 关闭数据库会话，释放资源
 
 app = FastAPI(
     title="我的记账API",
@@ -57,14 +48,6 @@ async def log_request_time(request,call_next):
     duration = time.time() - start
     print(f"[{request.method} {request.url.path}] 耗时 {duration:.3f}s")
     return response
-
-async def verify_token(X_token: Annotated[str,Header(description="请求头中的X-Token，用于身份验证")]):
-    """
-    鉴权依赖：检查请求头 X-token 是否存在且值为 secret，否则抛出401异常
-    """
-    if X_token != "secret":
-        raise HTTPException(401)
-    return X_token
 
 # 异步测试接口
 @app.get("/demo/async-vs-sync",
