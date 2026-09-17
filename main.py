@@ -1,14 +1,13 @@
 from fastapi import FastAPI,HTTPException,Depends,Header
-from pydantic import BaseModel,Field
-from enum import Enum
 from typing import Annotated
-from datetime import date
 from fastapi.responses import JSONResponse
 import time,asyncio,httpx
 import models
 from database import Base,engine,SessionLocal
 from sqlalchemy import select # 构造查询语句
 from sqlalchemy.orm import Session # 类型标注
+
+from schemas import ExpenseCreate,ExpenseOut,Category
 
 
 # 自定义异常类
@@ -59,15 +58,6 @@ async def log_request_time(request,call_next):
     print(f"[{request.method} {request.url.path}] 耗时 {duration:.3f}s")
     return response
 
-class Category(str, Enum):
-    food = "餐饮"
-    transportation = "交通"
-    shopping = "购物"
-    entertainment = "娱乐"
-    medical = "医疗"
-    study = "学习"
-    others = "其他"
-
 async def verify_token(X_token: Annotated[str,Header(description="请求头中的X-Token，用于身份验证")]):
     """
     鉴权依赖：检查请求头 X-token 是否存在且值为 secret，否则抛出401异常
@@ -75,19 +65,6 @@ async def verify_token(X_token: Annotated[str,Header(description="请求头中�
     if X_token != "secret":
         raise HTTPException(401)
     return X_token
-
-class Expense(BaseModel):
-    amount: Annotated[float, Field(gt=0, description="支出金额必须大于0")]
-    category: Category
-    note: Annotated[str | None, Field(default=None,max_length=100,description="备注信息，最多100字符")]
-    date: Annotated[date, Field(description="消费日期，格式为YYYY-MM-DD")]
-
-# 入参模型和出参模型分离，方便后续扩展和维护
-class ExpenseCreate(Expense):
-    pass
-class ExpenseOut(Expense):
-    id: int
-
 
 # 异步测试接口
 @app.get("/demo/async-vs-sync",
