@@ -9,13 +9,7 @@ from sqlalchemy.orm import Session # 类型标注
 
 from schemas import ExpenseCreate,ExpenseOut,Category
 from dependencies import get_db,verify_token
-
-# 自定义异常类
-# 继承 Exception 表示这是一个异常：让FastAPI识别并处理它
-class ExpenseNotFound(Exception):
-    """当查不到某笔开销时抛出"""
-    def __init__(self,expense_id: int):
-        self.expense_id = expense_id
+from exceptions import ExpenseNotFound # 自定义异常类
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine) # 绑定数据库引擎，创建所有继承自 Base 的数据模型对应的表
