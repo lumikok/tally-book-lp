@@ -4,6 +4,7 @@ import time,asyncio,httpx
 from database import Base,engine
 from exceptions import ExpenseNotFound # 自定义异常类
 from routers import expenses # 导入路由模块
+from fastapi.middleware.cors import CORSMiddleware # 允许跨域请求
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine) # 绑定数据库引擎，创建所有继承自 Base 的数据模型对应的表
@@ -12,6 +13,16 @@ app = FastAPI(
     title="我的记账API",
     description="从零学习FastAPI的记账系统API",
     version="0.1.0",
+)
+
+# 允许跨域请求
+# 开发期配置：允许任意来源访问，但不启用cookie和认证信息
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # 允许所有来源
+    allow_credentials=False, # 不允许携带cookie
+    allow_methods=["*"], # 允许所有方法
+    allow_headers=["*"], # 允许所有请求头
 )
 
 app.include_router(expenses.router) # 注册路由模块
