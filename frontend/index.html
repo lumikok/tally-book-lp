@@ -10,6 +10,34 @@
     <main>
       <h1>我的记账本</h1>
       <p id="status">前端页面已启动</p>
+      <h2>记一笔</h2>
+      <form id="expense-form">
+        <label for="amount">金额：</label>
+        <input
+          id="amount"
+          name="amount"
+          type="number"
+          min="0.01"
+          step="0.01"
+          required
+        />
+        <label for="category">分类：</label>
+        <select id="category" name="category" required>
+          <option value="">请选择</option>
+          <option value="餐饮">餐饮</option>
+          <option value="购物">购物</option>
+          <option value="学习">学习</option>
+          <option value="交通">交通</option>
+          <option value="娱乐">娱乐</option>
+          <option value="医疗">医疗</option>
+          <option value="其他">其他</option>
+        </select>
+        <label for="note">备注：</label>
+        <input id="note" name="note" type="text" maxlength="100" />
+        <label for="date">日期：</label>
+        <input id="date" name="date" type="date" required />
+        <button type="submit">保存开销</button>
+      </form>
       <button id="load-button" type="button">加载开销</button>
     </main>
     <script src="./app.js"></script>
