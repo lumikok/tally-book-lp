@@ -3,10 +3,10 @@ from fastapi.responses import JSONResponse
 import time,asyncio,httpx
 from database import Base,engine
 from exceptions import ExpenseNotFound # 自定义异常类
-from routers import expenses # 导入路由模块
+from routers import expenses,summary# 导入路由模块
 from fastapi.middleware.cors import CORSMiddleware # 允许跨域请求
 
-# 创建数据库表
+# 创建数据库表（真正创建表）
 Base.metadata.create_all(bind=engine) # 绑定数据库引擎，创建所有继承自 Base 的数据模型对应的表
 
 app = FastAPI(
@@ -25,7 +25,9 @@ app.add_middleware(
     allow_headers=["*"], # 允许所有请求头
 )
 
-app.include_router(expenses.router) # 注册路由模块
+# 注册路由模块
+app.include_router(expenses.router)
+app.include_router(summary.router) 
 
 # 注册异常处理器
 # 遇到 ExpenseNotFound 异常时，用这个函数处理
