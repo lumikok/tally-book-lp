@@ -1,0 +1,14 @@
+body {
+  max-width: 800px; /* 正文最宽800像素 */
+  margin: 40px auto; /* 上下边距40像素，左右自动居中 */
+  padding: 0 20px; /* 左右内边距20像素 */
+  font-family: sans-serif; /* 使用无衬线字体 */
+}
+
+h1 {
+  color: aqua;
+}
+
+p {
+  color: brown;
+}
