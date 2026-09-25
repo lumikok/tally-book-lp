@@ -1,18 +1,103 @@
 const statusText = document.querySelector("#status");
 // document：代表当前的HTML页面；querySelector：从页面中寻找一个元素；"#status"-CSS选择器，#表示按id查找
 
+// 选择加载按钮元素
 const loadButton = document.querySelector("#load-button");
 
+// 选择开销列表元素
 const expenseList = document.querySelector("#expense-list");
 
+// 筛选相关元素
 const filterCategory = document.querySelector("#filter-category");
 const filterButton = document.querySelector("#filter-button");
 
+// 分页相关元素
 const previousButton = document.querySelector("#previous-button");
 const nextButton = document.querySelector("#next-button");
 const pageInfo = document.querySelector("#page-info");
 let currentPage = 1;
 const pageSize = 2;
+
+// 图表相关元素
+const categoryChartContainer = document.querySelector("#category-chart");
+const categoryChart = echarts.init(categoryChartContainer); // 初始化图表实例
+
+const dailyChartContainer = document.querySelector("#daily-chart");
+const dailyChart = echarts.init(dailyChartContainer); // 初始化图表实例
+
+async function loadCategoryChart() {
+  const response = await fetch("http://127.0.0.1:8000/summary/category");
+
+  const categoryRows = await response.json();
+
+  const pieData = categoryRows.map((row) => {
+    return {
+      name: row.category,
+      value: row.amount,
+    };
+  });
+  const option = {
+    title: {
+      text: "各类支出占比",
+      left: "center",
+    },
+    tooltip: {
+      trigger: "item",
+    },
+    series: [
+      {
+        name: "分类支出",
+        type: "pie",
+        radius: "60%",
+        data: pieData,
+      },
+    ],
+  };
+  categoryChart.setOption(option);
+}
+
+async function loadDailyChart() {
+  const response = await fetch("http://127.0.0.1:8000/summary/daily");
+
+  const dailyRows = await response.json();
+
+  const dates = dailyRows.map((row) => {
+    return row.date;
+  });
+
+  const amounts = dailyRows.map((row) => {
+    return row.amount;
+  });
+
+  const option = {
+    title: {
+      text: "每日支出趋势",
+      left: "center",
+    },
+    tooltip: {
+      trigger: "axis",
+    },
+    xAxis: {
+      type: "category",
+      data: dates,
+    },
+    yAxis: {
+      type: "value",
+    },
+    series: [
+      {
+        name: "每日支出",
+        type: "line",
+        data: amounts,
+      },
+    ],
+  };
+  dailyChart.setOption(option);
+}
+
+// 加载图表数据
+loadCategoryChart();
+loadDailyChart();
 
 let editingExpenseId = null; // 用于存储当前正在编辑的开销ID，初始值为null，表示没有正在编辑的开销
 
@@ -28,6 +113,8 @@ async function deleteExpense(expenseId) {
 
   if (response.ok) {
     await loadExpenses(); // 重新加载开销数据
+    await loadCategoryChart(); // 重新加载图表数据
+    await loadDailyChart();
     statusText.textContent = "删除成功，开销数据已刷新";
   } else {
     const error = await response.json();
@@ -47,6 +134,7 @@ function startEdit(expense) {
   statusText.textContent = `正在编辑 id=${expense.id} 的开销数据`;
 }
 
+// 渲染开销列表
 function renderExpenses(expenses) {
   expenseList.innerHTML = ""; // 清空列表
 
@@ -174,6 +262,8 @@ async function saveExpense(event) {
     editingExpenseId = null; // 重置编辑状态
     expenseForm.reset(); // 重置表单
     await loadExpenses(); // 重新加载开销数据
+    await loadCategoryChart(); // 重新加载图表数据
+    await loadDailyChart();
     if (isEditing) {
       statusText.textContent = `编辑成功，开销列表已刷新`;
     } else {
