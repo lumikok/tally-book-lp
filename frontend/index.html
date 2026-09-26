@@ -7,71 +7,97 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <main>
-      <h1>我的记账本</h1>
-      <p id="status">前端页面已启动</p>
-      <h2>记一笔</h2>
-      <form id="expense-form">
-        <label for="amount">金额：</label>
-        <input
-          id="amount"
-          name="amount"
-          type="number"
-          min="0.01"
-          step="0.01"
-          required
-        />
-        <label for="category">分类：</label>
-        <select id="category" name="category" required>
-          <option value="">请选择</option>
-          <option value="餐饮">餐饮</option>
-          <option value="购物">购物</option>
-          <option value="学习">学习</option>
-          <option value="交通">交通</option>
-          <option value="娱乐">娱乐</option>
-          <option value="医疗">医疗</option>
-          <option value="其他">其他</option>
-        </select>
-        <label for="note">备注：</label>
-        <input id="note" name="note" type="text" maxlength="100" />
-        <label for="date">日期：</label>
-        <input id="date" name="date" type="date" required />
-        <button type="submit">保存开销</button>
-      </form>
-      <button id="load-button" type="button">加载开销</button>
+    <main class="page-shell">
+      <header class="page-header">
+        <h1>我的记账本</h1>
+        <p id="status">前端页面已启动</p>
+      </header>
 
-      <label for="filter-category">筛选分类：</label>
-      <select id="filter-category">
-        <option value="">全部</option>
-        <option value="餐饮">餐饮</option>
-        <option value="购物">购物</option>
-        <option value="学习">学习</option>
-        <option value="交通">交通</option>
-        <option value="娱乐">娱乐</option>
-        <option value="医疗">医疗</option>
-        <option value="其他">其他</option>
-      </select>
-      <button id="filter-button" type="button">筛选</button>
-      <h2>开销列表</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>金额</th>
-            <th>分类</th>
-            <th>备注</th>
-            <th>日期</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody id="expense-list"></tbody>
-      </table>
-      <button id="previous-button" type="button">上一页</button>
-      <span id="page-info">第 1 页</span>
-      <button id="next-button" type="button">下一页</button>
-      <h2>分类支出占比</h2>
-      <div id="category-chart" class="chart"></div>
-      <h2>每日支出趋势</h2>
-      <div id="daily-chart" class="chart"></div>
+      <div class="content-grid">
+        <section class="card">
+          <h2>记一笔</h2>
+          <form id="expense-form">
+            <label for="amount">金额：</label>
+            <input
+              id="amount"
+              name="amount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              required
+            />
+            <label for="category">分类：</label>
+            <select id="category" name="category" required>
+              <option value="">请选择</option>
+              <option value="餐饮">餐饮</option>
+              <option value="购物">购物</option>
+              <option value="学习">学习</option>
+              <option value="交通">交通</option>
+              <option value="娱乐">娱乐</option>
+              <option value="医疗">医疗</option>
+              <option value="其他">其他</option>
+            </select>
+            <label for="note">备注：</label>
+            <input id="note" name="note" type="text" maxlength="100" />
+            <label for="date">日期：</label>
+            <input id="date" name="date" type="date" required />
+            <button type="submit">保存开销</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>开销列表</h2>
+
+          <div class="list-toolbar">
+            <button id="load-button" type="button">加载开销</button>
+
+            <label for="filter-category">筛选分类：</label>
+            <select id="filter-category">
+              <option value="">全部</option>
+              <option value="餐饮">餐饮</option>
+              <option value="购物">购物</option>
+              <option value="学习">学习</option>
+              <option value="交通">交通</option>
+              <option value="娱乐">娱乐</option>
+              <option value="医疗">医疗</option>
+              <option value="其他">其他</option>
+            </select>
+            <button id="filter-button" type="button">筛选</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>金额</th>
+                  <th>分类</th>
+                  <th>备注</th>
+                  <th>日期</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="expense-list"></tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <button id="previous-button" type="button">上一页</button>
+            <span id="page-info">第 1 页</span>
+            <button id="next-button" type="button">下一页</button>
+          </div>
+        </section>
+      </div>
+
+      <div class="charts-grid">
+        <section class="card">
+          <h2>分类支出占比</h2>
+          <div id="category-chart" class="chart"></div>
+        </section>
+
+        <section class="card">
+          <h2>每日支出趋势</h2>
+          <div id="daily-chart" class="chart"></div>
+        </section>
+      </div>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
     <script src="./app.js"></script>

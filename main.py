@@ -6,6 +6,9 @@ from exceptions import ExpenseNotFound # 自定义异常类
 from routers import expenses,summary# 导入路由模块
 from fastapi.middleware.cors import CORSMiddleware # 允许跨域请求
 
+# 单端口访问
+from fastapi.staticfiles import StaticFiles
+
 # 创建数据库表（真正创建表）
 Base.metadata.create_all(bind=engine) # 绑定数据库引擎，创建所有继承自 Base 的数据模型对应的表
 
@@ -84,3 +87,11 @@ async def compare_async_sync():
         "异步请求耗时": round(async_dutation, 3),
         "提速倍": round(sync_duration / async_dutation, 2)
     } # round 保留两位小数
+
+
+# 必须放在文件最末尾，因为 / 能匹配所有路径。如果它排在 API 路由前面，/expenses 等请求可能先被静态文件处理，导致 API 路由无法执行。
+app.mount(
+    "/",
+    StaticFiles(directory="frontend",html=True), # 创建一个专门返回前端静态文件的应用
+    name="frontend",
+)

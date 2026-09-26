@@ -1,19 +1,170 @@
+* {
+  box-sizing: border-box; /* 元素声明的宽度会包含内边距和边框，不包含外边距 */
+}
+
 body {
-  max-width: 800px; /* 正文最宽800像素 */
-  margin: 40px auto; /* 上下边距40像素，左右自动居中 */
-  padding: 0 20px; /* 左右内边距20像素 */
-  font-family: sans-serif; /* 使用无衬线字体 */
+  margin: 0;
+  color: #1f2937;
+  background: #f3f4f6;
+  font-family: sans-serif;
 }
 
-h1 {
-  color: aqua;
+/* .表示按class选择 */
+.page-shell {
+  max-width: 1200px;
+  margin: 0 auto; /* 上下外边距为0，左右自动分配 */
+  padding: 32px 20px; /* 内边距 */
 }
 
-p {
-  color: brown;
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin-bottom: 8px;
+}
+
+/* #表示按id选择 */
+#status {
+  margin: 0;
+  color: #4b5563;
+}
+
+.content-grid,
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    2,
+    minmax(0, 1fr)
+  ); /* 重复两次，也就是两列，1fr：占一份可用空间 */
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.card {
+  padding: 24px;
+  background: white;
+  border: 1px solid #e5e7eb; /* 边框粗细，样式，颜色 */
+  border-radius: 12px; /* 圆角 */
+  box-shadow: 0 4px 14px rgb(0 0 0 / 6%); /* 透明度为6%的黑色*/
+}
+
+.card h2 {
+  margin-top: 0;
 }
 
 .chart {
   width: 100%;
   height: 360px;
+}
+
+#expense-form {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 16px 12px;
+  align-items: center;
+}
+
+#expense-form button {
+  grid-column: 1 / -1;
+}
+
+#expense-form input,
+#expense-form select,
+#filter-category {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font: inherit;
+}
+
+#expense-form input,
+#expense-form select {
+  width: 100%;
+}
+
+button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  color: white;
+  background: #1563eb;
+  font: inherit; /* 继承页面字体 */
+  cursor: pointer;
+}
+
+/* 鼠标悬停到按钮上 */
+button:hover {
+  background: #1d4ed8;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.list-toolbar,
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.list-toolbar {
+  flex-wrap: wrap;
+}
+
+.list-toolbar label {
+  margin-left: auto;
+}
+
+.pagination {
+  justify-content: center; /* 整排元素水平居中 */
+  margin-top: 18px;
+}
+
+.table-wrap {
+  margin-top: 18px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  background: #f9fafb;
+}
+
+td button {
+  padding: 6px 10px;
+}
+
+.delete-button {
+  background: #dc2626;
+}
+
+.delete-button:hover {
+  background: #b91c1c;
+}
+
+/* @media 是条件样式：浏览器宽度不超过 800px 时，把两列覆盖成一列。 */
+@media (max-width: 800px) {
+  .content-grid,
+  .charts-grid,
+  #expense-form {
+    grid-template-columns: 1fr;
+  }
+  .list-toolbar label {
+    margin-left: 0;
+  }
 }

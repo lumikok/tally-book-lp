@@ -26,7 +26,7 @@ const dailyChartContainer = document.querySelector("#daily-chart");
 const dailyChart = echarts.init(dailyChartContainer); // 初始化图表实例
 
 async function loadCategoryChart() {
-  const response = await fetch("http://127.0.0.1:8000/summary/category");
+  const response = await fetch("/summary/category");
 
   const categoryRows = await response.json();
 
@@ -57,7 +57,7 @@ async function loadCategoryChart() {
 }
 
 async function loadDailyChart() {
-  const response = await fetch("http://127.0.0.1:8000/summary/daily");
+  const response = await fetch("/summary/daily");
 
   const dailyRows = await response.json();
 
@@ -104,7 +104,7 @@ let editingExpenseId = null; // 用于存储当前正在编辑的开销ID，初�
 async function deleteExpense(expenseId) {
   statusText.textContent = "正在删除开销数据...";
 
-  const response = await fetch(`http://127.0.0.1:8000/expenses/${expenseId}`, {
+  const response = await fetch(`/expenses/${expenseId}`, {
     method: "DELETE", // 请求方法为DELETE，表示删除资源
     headers: {
       "X-token": "secret",
@@ -179,7 +179,7 @@ async function loadExpenses() {
     params.set("category", filterCategory.value); // 如果选择了类别，则添加类别参数
   }
 
-  const requestUrl = `http://127.0.0.1:8000/expenses?${params.toString()}`;
+  const requestUrl = `/expenses?${params.toString()}`;
 
   const response = await fetch(requestUrl);
   const expenses = await response.json();
@@ -237,11 +237,11 @@ async function saveExpense(event) {
 
   const isEditing = editingExpenseId !== null; // 判断是否正在编辑开销数据
 
-  let requestUrl = "http://127.0.0.1:8000/expenses";
+  let requestUrl = "/expenses";
   let requestMethod = "POST"; // 默认请求方法为POST，表示创建新资源
 
   if (isEditing) {
-    requestUrl = `http://127.0.0.1:8000/expenses/${editingExpenseId}`;
+    requestUrl = `/expenses/${editingExpenseId}`;
     requestMethod = "PUT"; // 如果是编辑，则使用PUT方法，表示更新资源
   }
 
